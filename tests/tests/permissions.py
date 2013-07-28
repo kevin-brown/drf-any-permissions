@@ -5,15 +5,31 @@ from rest_framework.views import APIView
 from rest_any_permissions.permissions import AnyPermissions
 
 
+class TestView(APIView):
+    
+    def test_permission(self, request):
+        from rest_framework.request import Request
+        
+        request = Request(request)
+        
+        self.request = request
+        
+        for permission in self.get_permissions():
+            if not permission.has_permission(request, self):
+                return False
+        
+        return True
+
+
 class TruePermission(BasePermission):
     
-    def has_permission(self):
+    def has_permission(self, request, view):
         return True
 
 
 class FalsePermission(BasePermission):
     
-    def has_permission(self):
+    def has_permission(self, request, view):
         return False
 
 
@@ -23,33 +39,73 @@ class PermissionsTest(TestCase):
         self.requests = RequestFactory()
     
     def test_no_permissions(self):
-        pass
+        class DefaultApiView(TestView):
+            permission_classes = [AnyPermissions]
+        
+        view = DefaultApiView()
+        request = self.requests.get("/")
+        
+        self.assertFalse(view.test_permission(request))
     
-    def test_default_passed(self):
-        class DefaultApiView(APIView):
+    def test_single_permission_flat(self):
+        class DefaultApiView(TestView):
+            permission_classes = [AnyPermissions]
+            any_permission_classes = TruePermission
+        
+        view = DefaultApiView()
+        request = self.requests.get("/")
+        
+        self.assertTrue(view.test_permission(request))
+    
+    def test_single_permission_passed(self):
+        class DefaultApiView(TestView):
             permission_classes = [AnyPermissions]
             any_permission_classes = [TruePermission]
         
         view = DefaultApiView()
         request = self.requests.get("/")
         
-        self.assertEqual(None, view.check_permissions(request))
+        self.assertTrue(view.test_permission(request))
     
-    def test_default_failed(self):
-        class DefaultApiView(APIView):
+    def test_single_permission_failed(self):
+        class DefaultApiView(TestView):
             permission_classes = [AnyPermissions]
             any_permission_classes = [FalsePermission]
         
         view = DefaultApiView()
         request = self.requests.get("/")
         
-        self.assertEqual(None, view.check_permissions(request))
+        self.assertFalse(view.test_permission(request))
     
-    def test_single_permission(self):
-        pass
+    def test_multiple_permissions_passed(self):
+        class DefaultApiView(TestView):
+            permission_classes = [AnyPermissions]
+            any_permission_classes = [TruePermission, FalsePermission]
+        
+        view = DefaultApiView()
+        request = self.requests.get("/")
+        
+        self.assertTrue(view.test_permission(request))
     
-    def test_multiple_permissions(self):
-        pass
+    def test_multiple_permissions_failed(self):
+        class DefaultApiView(TestView):
+            permission_classes = [AnyPermissions]
+            any_permission_classes = [FalsePermission, FalsePermission]
+        
+        view = DefaultApiView()
+        request = self.requests.get("/")
+        
+        self.assertFalse(view.test_permission(request))
     
     def test_chained_permissions(self):
-        pass
+        class DefaultApiView(TestView):
+            permission_classes = [AnyPermissions]
+            any_permission_classes = [
+                TruePermission,
+                [TruePermission, FalsePermission]
+            ]
+        
+        view = DefaultApiView()
+        request = self.requests.get("/")
+        
+        self.assertFalse(view.test_permission(request))
