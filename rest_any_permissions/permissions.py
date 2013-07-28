@@ -17,7 +17,7 @@ class AnyPermissions(BasePermission):
         
     def has_permission(self, request, view):
         """
-        Check the permissions.
+        Check the permissions on the view.
         """
         
         permissions = self.get_permissions(view)
@@ -40,6 +40,37 @@ class AnyPermissions(BasePermission):
                 permission = perm_class()
                 
                 if permission.has_permission(request, view):
+                    break
+                
+                return False
+        
+        return True
+        
+    def has_object_permission(self, request, view, obj):
+        """
+        Check the object permissions on the view.
+        """
+        
+        permissions = self.get_permissions(view)
+        
+        if not permissions:
+            return False
+        
+        for perm_class in permissions:
+            if hasattr(perm_class, "__iter__"):
+                classes = perm_class
+                
+                for perm_class in classes:
+                    permission = perm_class()
+                    
+                    if permission.has_object_permission(request, view, obj):
+                        break
+                    else:
+                        return False
+            else:
+                permission = perm_class()
+                
+                if permission.has_object_permission(request, view, obj):
                     break
                 
                 return False
