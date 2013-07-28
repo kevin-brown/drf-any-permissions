@@ -101,11 +101,11 @@ class PermissionsTest(TestCase):
         class DefaultApiView(TestView):
             permission_classes = [AnyPermissions]
             any_permission_classes = [
+                [TruePermission, FalsePermission],
                 TruePermission,
-                [TruePermission, FalsePermission]
             ]
         
         view = DefaultApiView()
         request = self.requests.get("/")
         
-        self.assertFalse(view.test_permission(request))
+        self.assertTrue(view.test_permission(request))
