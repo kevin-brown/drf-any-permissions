@@ -45,7 +45,7 @@ If you specify a list of permissions, the list will be checked until one of them
 
 Nested permissions
 -----------------------------
-AP only supports a single layer of nested lists.  If you need anything more complex than that, we gladly accept pull requests.  This allows you to "chain" permission checks together, which allows for you to require that two permissions out of two specific lists must be met before they can access the view.
+AP only supports a single layer of nested permissions.  An example of this is shown in the examples section.  If you need anything more complex than that (2+ layers), we gladly accept pull requests that add it.  This allows you to "chain" permission checks together, which allows for you to require that two permissions out of two specific lists must be met before they can access the view.
 
 Examples
 ========
