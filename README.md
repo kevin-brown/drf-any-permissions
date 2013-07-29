@@ -39,13 +39,52 @@ One permission
 --------------
 If you specify one permission, it will act as though it was a list with only one permission.  This means that is is essentially required, and it would be more useful had it been placed in the original list of required permissions.
 
-A list of permissions
+Multiple permissions
 ---------------------
 If you specify a list of permissions, the list will be checked until one of them returns `True`, meaning that they have permission.  It will stop at the first one, so make sure that your views do not depend on the other permissions being processed.
 
-A list of list of permissions
+Nested permissions
 -----------------------------
 AP only supports a single layer of nested lists.  If you need anything more complex than that, we gladly accept pull requests.  This allows you to "chain" permission checks together, which allows for you to require that two permissions out of two specific lists must be met before they can access the view.
+
+Examples
+========
+
+AP has a few use cases, some which are more complex than others, so here are a few examples to show them.
+
+One permission
+--------------
+
+```python
+from rest_framework import permissions, viewsets
+from rest_any_permissions import permissions
+
+class ExmapleViewSet(viewsets.ModelViewSet):
+    permission_classes = [AnyPermissions]
+    any_permission_classes = permissions.DjangoModelPermissions
+    model = ExampleModel
+```
+
+As stated above, this works the same as if the permission was inside of the `permission_classes` attribute.  If the permission fails that is specified in `any_permission_classes`, the user will be denied access.
+
+Multiple permissions
+--------------------
+
+```python
+from rest_framework import permissions, viewsets
+from rest_any_permissions import permissions
+
+class ExmapleViewSet(viewsets.ModelViewSet):
+    permission_classes = [AnyPermissions]
+    any_permission_classes = [permissions.DjangoModelPermissions, permissions.IsAdminUser]
+    model = ExampleModel
+```
+
+AP will check a list of permissions to see which one passes.
+
+* If the user has the permission as required by `DjangoModelPermissions`, they will be granted access to the view.  In this case, `IsAdminUser` is never checked.
+* If the user does not have the permission as required by `DjangoModelPermissions`, they will be checked against `IsAdminUser`.  If they pass `IsAdminUser`, they will be granted access to the view.
+* If the user fails both `DjangoModelPermissions` and `IsAdminUser`, the user will not be granted access to the view.
 
 Contributing
 ============
