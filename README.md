@@ -67,6 +67,8 @@ class ExmapleViewSet(viewsets.ModelViewSet):
 
 As stated above, this works the same as if the permission was inside of the `permission_classes` attribute.  If the permission fails that is specified in `any_permission_classes`, the user will be denied access.
 
+There is no need for you to use AP in this case, but it is provided as a fallback.
+
 Multiple permissions
 --------------------
 
@@ -85,6 +87,49 @@ AP will check a list of permissions to see which one passes.
 * If the user has the permission as required by `DjangoModelPermissions`, they will be granted access to the view.  In this case, `IsAdminUser` is never checked.
 * If the user does not have the permission as required by `DjangoModelPermissions`, they will be checked against `IsAdminUser`.  If they pass `IsAdminUser`, they will be granted access to the view.
 * If the user fails both `DjangoModelPermissions` and `IsAdminUser`, the user will not be granted access to the view.
+
+An example of where this would be used is if you were sharing an API across multiple applications.  They might require different authentication and have different ways of checking permissions.
+
+Nested permissions
+------------------
+
+```python
+from rest_framework import permissions, viewsets
+from rest_any_permissions import permissions
+
+
+class IsLucky(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        import random
+        
+        return random.randint(1, 10) > 8
+
+
+class ExmapleViewSet(viewsets.ModelViewSet):
+    permission_classes = [AnyPermissions]
+    any_permission_classes = [
+        [permissions.IsAdminUser, IsLucky],
+        [permissions.DjangoModelPermissions, permissions.TokenHasReadWriteScope],
+    ]
+    model = ExampleModel
+```
+
+This situation assumes you have another permission that needs to be checked.  In our case, this is `IsLucky`, because everyone needs some randomness in their life.
+
+This allows you to chain permissions, which is something you can't do without nesting permissions.  This is useful in situations where you would use `AnyPermissions` twice, which you can't do without nesting permissions.
+
+When the request comes through, the permissions are checked in order.
+
+* If `IsAdminUser` passes, `IsLucky` is never checked.  The process would then continue.
+* If `IsAdminUser` fails, `IsLucky` is called.  If it fails, the user is not given access to the view.  If it passes, the process continues.
+
+Assuming that the process continues, the next list of permissions would be checked:
+
+* If `DjangoModelPermissions` passes, `TokenHasReadWriteScope` is never checked.  This would allow you to use the same API for your main application as you would for external applications, making it DRY.
+* If `DjangoModelPermissions` fails, `TokenHasReadWriteScope` is checked.  If it passes, the user will be granted access to the view.  If it fails, the user would be denied access to the API, even though they passed the first check.
+
+An example of where this would be used in a project is if you needed to use the same API for external applications as you used on your main website.  You would also need a second condition that needed to be met, which makes this use case somewhat rare.
 
 Contributing
 ============
