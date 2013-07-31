@@ -1,12 +1,22 @@
 DRF Any Permissions (AP)
 ========================
-
 Django Rest Framework currently provides permssions as an all-or-nothing solution, which makes it difficult to use them with different authentication types.  AP allows you to get around that barrier by only requiring one permission to pass out of a group to access a view.
 
 When would I need to use this?
 ==============================
 * When you use multiple authentication types on a view.
 * When you have different requirements for people to access a view, and only one needs to be met.
+
+Is this on PyPi?
+================
+You can install this through PIP.  You must have Django Request Framework and
+Django already, but the name implies that anyway.
+
+```
+pip install drf-any-permissions
+```
+
+You can also install it from source by cloning this repository using Git.
 
 How do I use this?
 ==================
