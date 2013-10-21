@@ -131,7 +131,7 @@ class PermissionsTest(TestCase):
         view = DefaultApiView()
         request = self.requests.get("/")
 
-        self.assertTrue(view.test_permission(request))
+        self.assertFalse(view.test_permission(request))
 
     def test_chained_late_failed(self):
         class DefaultApiView(TestView):
@@ -144,4 +144,4 @@ class PermissionsTest(TestCase):
         view = DefaultApiView()
         request = self.requests.get("/")
 
-        self.assertTrue(view.test_permission(request))
+        self.assertFalse(view.test_permission(request))

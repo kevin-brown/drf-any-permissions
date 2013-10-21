@@ -33,7 +33,9 @@ class AnyPermissions(BasePermission):
                     permission = perm_class()
 
                     if permission.has_permission(request, view):
-                        return True
+                        break
+                    else:
+                        return False
             else:
                 permission = perm_class()
 
@@ -60,7 +62,9 @@ class AnyPermissions(BasePermission):
                     permission = perm_class()
 
                     if permission.has_object_permission(request, view, obj):
-                        return True
+                        break
+                    else:
+                        return False
             else:
                 permission = perm_class()
 
