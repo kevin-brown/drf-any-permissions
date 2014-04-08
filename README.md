@@ -26,7 +26,7 @@ On your View or ViewSet, you must include the permission `AnyPermissions`.
 from rest_framework import viewsets
 from rest_any_permissions.permissions import AnyPermissions
 
-class ExmapleViewSet(viewsets.ModelViewSet):
+class ExampleViewSet(viewsets.ModelViewSet):
     permission_classes = [AnyPermissions]
     model = ExampleModel
 ```
@@ -37,7 +37,7 @@ From there you can specify the list of permissions that are needed through the `
 from rest_framework import permissions, viewsets
 from rest_any_permissions import permissions
 
-class ExmapleViewSet(viewsets.ModelViewSet):
+class ExampleViewSet(viewsets.ModelViewSet):
     permission_classes = [AnyPermissions]
     any_permission_classes = [permissions.DjangoModelPermissions, permissions.IsAdminUser]
     model = ExampleModel
@@ -69,7 +69,7 @@ One permission
 from rest_framework import permissions, viewsets
 from rest_any_permissions import permissions
 
-class ExmapleViewSet(viewsets.ModelViewSet):
+class ExampleViewSet(viewsets.ModelViewSet):
     permission_classes = [AnyPermissions]
     any_permission_classes = permissions.DjangoModelPermissions
     model = ExampleModel
@@ -86,7 +86,7 @@ Multiple permissions
 from rest_framework import permissions, viewsets
 from rest_any_permissions import permissions
 
-class ExmapleViewSet(viewsets.ModelViewSet):
+class ExampleViewSet(viewsets.ModelViewSet):
     permission_classes = [AnyPermissions]
     any_permission_classes = [permissions.DjangoModelPermissions, permissions.IsAdminUser]
     model = ExampleModel
@@ -116,7 +116,7 @@ class IsLucky(permissions.BasePermission):
         return random.randint(1, 10) > 8
 
 
-class ExmapleViewSet(viewsets.ModelViewSet):
+class ExampleViewSet(viewsets.ModelViewSet):
     permission_classes = [AnyPermissions]
     any_permission_classes = [
         [permissions.IsAdminUser, IsLucky],
